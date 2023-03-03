@@ -11,7 +11,8 @@ from dateutil import parser as dparser
 
 # Config
 notification_interval = timedelta(hours=2)
-state_dir = Path(f"{os.path.expanduser('~')}/.jstate/notify-at")
+project_dir = os.path.dirname(os.path.realpath(__file__)) 
+state_dir = Path(f"{project_dir}/state")
 wakeup_time_path = Path(f"{state_dir}/wakeup_time")
 reflected_flag_path = Path(f"{state_dir}/reflected")
 next_notification_time_sp = Path(f"{state_dir}/next_notification_time")

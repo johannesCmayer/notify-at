@@ -10,10 +10,10 @@
     <true/>
 
     <key>StandardErrorPath</key>
-    <string>/Users/johannes/.jstate/notify-at/stderr.log</string>
+    <string>/Users/johannes/projects/notify-at/notify-at/state/stdout.log</string>
 
     <key>StandardOutPath</key>
-    <string>/Users/johannes/.jstate/notify-at/stdout.log</string>
+    <string>/Users/johannes/projects/notify-at/notify-at/state/stdout.log</string>
 
     <key>EnvironmentVariables</key>
     <dict>
@@ -27,7 +27,7 @@
     <key>ProgramArguments</key>
     <array>
       <string>/opt/homebrew/bin/python3</string>
-      <string>/Users/johannes/shell/python/notify-at</string>
+      <string>/Users/johannes/projects/notify-at/notify-at.py</string>
       <string>--loop</string>
     </array>
 
