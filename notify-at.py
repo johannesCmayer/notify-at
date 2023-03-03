@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import time
 import os
 import subprocess
@@ -11,6 +9,7 @@ from dateutil import parser as dparser
 
 # Config
 notification_interval = timedelta(hours=2)
+awake_per_day = timedelta(hours=14)
 project_dir = os.path.dirname(os.path.realpath(__file__)) 
 state_dir = Path(f"{project_dir}/state")
 wakeup_time_path = Path(f"{state_dir}/wakeup_time")
@@ -65,9 +64,9 @@ def main():
             pickle.dump(wakeup_time, f)
         with next_notification_time_sp.open('wb') as f:
             pickle.dump(dt.now(), f)
-        bedtime = wakeup_time + timedelta(hours=12)
+        bedtime = wakeup_time + awake_per_day
         with bedtime_sp.open('wb') as f:
-            pickle.dump(dt.now(), f)
+            pickle.dump(bedtime, f)
         reflected_flag_path.unlink()
 
     with next_notification_time_sp.open('rb') as f:
@@ -133,3 +132,9 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+#SOMEDAY
+# - Use plain text as serialization format
+# - make the serialization easier (use some dict object that automatically 
+#   saves to file when writing to)
+# - General refactoring
