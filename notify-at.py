@@ -68,6 +68,7 @@ def main():
         bedtime = wakeup_time + timedelta(hours=12)
         with bedtime_sp.open('wb') as f:
             pickle.dump(dt.now(), f)
+        reflected_flag_path.unlink()
 
     with next_notification_time_sp.open('rb') as f:
         next_notification_time = pickle.load(f)
