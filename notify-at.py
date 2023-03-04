@@ -59,15 +59,13 @@ def main():
             pickle.dump(next_notification_time, f)
 
     if args.wakeup or not wakeup_time_path.exists():
-        wakeup_time = dt.now()
+        reflected_flag_path.unlink(missing_ok=True)
         with wakeup_time_path.open('wb') as f:
-            pickle.dump(wakeup_time, f)
+            pickle.dump(dt.now(), f)
         with next_notification_time_sp.open('wb') as f:
             pickle.dump(dt.now(), f)
-        bedtime = wakeup_time + awake_per_day
         with bedtime_sp.open('wb') as f:
-            pickle.dump(bedtime, f)
-        reflected_flag_path.unlink()
+            pickle.dump(dt.now() + awake_per_day, f)
 
     with next_notification_time_sp.open('rb') as f:
         next_notification_time = pickle.load(f)
