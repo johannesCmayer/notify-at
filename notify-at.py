@@ -22,7 +22,7 @@ state_dir.mkdir(parents=True, exist_ok=True)
 
 # Args
 parser = argparse.ArgumentParser()
-parser.add_argument('--wakeup', action='store_true', 
+parser.add_argument('-w', '--wakeup', action='store_true', 
                     help="Set the wakeup time to the current time, and set the next reflection to now")
 parser.add_argument('--set-wakeup', help="Set the wakeup time.")
 parser.add_argument('--set-reflection', help="Set the next time to reflect at.")
@@ -30,7 +30,7 @@ parser.add_argument('--set-eod', help="Set the end of day time.")
 parser.add_argument('--get-state', action='store_true', help='Querry the current state. Useful for displaying it in a widged.')
 parser.add_argument('--use-voice', action='store_true', help='Use TTS to announce when it is time to reflect.')
 parser.add_argument('--loop', action='store_true', help="Run the program in notification mode continuously. This should be run as a system service.")
-parser.add_argument('--reflected', action='store_true', help="Declare that you are finished with the current reflection. Resets")
+parser.add_argument('-r', '--reflected', action='store_true', help="Declare that you are finished with the current reflection. Resets")
 args = parser.parse_args()
 
 def format_time_delta(td, seconds=True):
@@ -96,7 +96,7 @@ def main():
         return fmt_time_diff(dt.now(), wakeup_time, seconds)
 
     if args.get_state:
-        print("         J-Time:", j_time())
+        print("         J-Time:", j_time(), wakeup_time.strftime("%H:%M"))
         print("     End of Day:", eod(), bedtime.strftime("%H:%M"))
         print("Next Reflection:", ("NOW! " if next_notification_time < dt.now()else "") + \
               fmt_time_diff(next_notification_time, dt.now()), next_notification_time.strftime("%H:%M"))
