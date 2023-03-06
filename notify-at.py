@@ -33,6 +33,12 @@ parser.add_argument('--loop', action='store_true', help="Run the program in noti
 parser.add_argument('-r', '--reflected', action='store_true', help="Declare that you are finished with the current reflection. Resets")
 args = parser.parse_args()
 
+#TODO Make the program use utc time for all timestamps
+#     and modify the program, such that it renders these
+#     timsteps correctly in local timezone as output.
+def now():
+    dt.now()
+
 def format_time_delta(td, seconds=True):
     a,b,c = str(td).split(".")[0].split(':')
     if seconds:
