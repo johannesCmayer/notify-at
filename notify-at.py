@@ -2,6 +2,7 @@ import time
 import os
 import subprocess
 from datetime import datetime as dt, timedelta
+import datetime
 import argparse
 from pathlib import Path
 import pickle
@@ -33,11 +34,11 @@ parser.add_argument('--loop', action='store_true', help="Run the program in noti
 parser.add_argument('-r', '--reflected', action='store_true', help="Declare that you are finished with the current reflection. Resets")
 args = parser.parse_args()
 
-#TODO Make the program use utc time for all timestamps
-#     and modify the program, such that it renders these
-#     timsteps correctly in local timezone as output.
+def utc_now():
+    return dt.now(datetime.UTC)
+
 def now():
-    dt.now()
+    return utc_now().astimezone()
 
 def format_time_delta(td, seconds=True):
     a,b,c = str(td).split(".")[0].split(':')
@@ -57,7 +58,7 @@ def main():
     # Setup first time trigger
     if not next_notification_time_sp.exists():
         with next_notification_time_sp.open('wb') as f:
-            pickle.dump(dt.now(), f)
+            pickle.dump(utc_now(), f)
 
     if args.set_reflection:
         next_notification_time = dparser.parse(args.set_reflection)
@@ -67,11 +68,11 @@ def main():
     if args.wakeup or not wakeup_time_path.exists():
         reflected_flag_path.unlink(missing_ok=True)
         with wakeup_time_path.open('wb') as f:
-            pickle.dump(dt.now(), f)
+            pickle.dump(utc_now(), f)
         with next_notification_time_sp.open('wb') as f:
-            pickle.dump(dt.now(), f)
+            pickle.dump(utc_now(), f)
         with bedtime_sp.open('wb') as f:
-            pickle.dump(dt.now() + awake_per_day, f)
+            pickle.dump(utc_now() + awake_per_day, f)
 
     with next_notification_time_sp.open('rb') as f:
         next_notification_time = pickle.load(f)
@@ -92,44 +93,44 @@ def main():
             pickle.dump(bedtime, f)
     if not bedtime_sp.exists():
         with bedtime_sp.open('wb') as f:
-            pickle.dump(dt.now(), f)
+            pickle.dump(utc_now(), f)
     with bedtime_sp.open('rb') as f:
         bedtime = pickle.load(f)
 
     def eod(seconds=True):
-        return fmt_time_diff(bedtime, dt.now(), seconds)
+        return fmt_time_diff(bedtime, utc_now(), seconds)
     def j_time(seconds=True):
-        return fmt_time_diff(dt.now(), wakeup_time, seconds)
+        return fmt_time_diff(utc_now(), wakeup_time, seconds)
 
     if args.get_state:
-        print("         J-Time:", j_time(), wakeup_time.strftime("%H:%M"))
-        print("     End of Day:", eod(), bedtime.strftime("%H:%M"))
-        print("Next Reflection:", ("NOW! " if next_notification_time < dt.now()else "") + \
-              fmt_time_diff(next_notification_time, dt.now()), next_notification_time.strftime("%H:%M"))
-        print("         Wakeup:", wakeup_time.strftime("%H:%M  %a"))
-        print("        Bedtime:", bedtime.strftime("%H:%M"))
+        print("         J-Time:", j_time(), wakeup_time.astimezone().strftime("%H:%M"))
+        print("     End of Day:", eod(), bedtime.astimezone().strftime("%H:%M"))
+        print("Next Reflection:", ("NOW! " if next_notification_time < utc_now() else "") + \
+              fmt_time_diff(next_notification_time, utc_now()), next_notification_time.astimezone().strftime("%H:%M"))
+        print("         Wakeup:", wakeup_time.astimezone().strftime("%H:%M  %a"))
+        print("        Bedtime:", bedtime.astimezone().strftime("%H:%M"))
     elif args.loop:
         while True:
             with next_notification_time_sp.open('rb') as f:
                 next_notification_time = pickle.load(f)
-            print(dt.now(), "<>", next_notification_time, end="\r")
-            if dt.now() >= next_notification_time:
+            print(utc_now(), "<>", next_notification_time, end="\r")
+            if utc_now() >= next_notification_time:
                 print("Time to reflect")
                 last_announce = None
                 while not reflected_flag_path.exists():
-                    if last_announce and dt.now() - last_announce < timedelta(minutes=5):
+                    if last_announce and utc_now() - last_announce < timedelta(minutes=5):
                         time.sleep(1)
                         continue
                     if args.use_voice:
                         subprocess.run(["say", "reflect now"])
                     subprocess.run(["terminal-notifier", 
-                        "-title", f"Reflect now ({fmt_time_diff(next_notification_time, dt.now(), False)})",
-                        "-message", f"It's {j_time(False)} / {dt.now().strftime('%H:%M')}. EOD in \
-                            {eod(False)} (at {bedtime.strftime('%H:%M')}).",
+                        "-title", f"Reflect now ({fmt_time_diff(next_notification_time, utc_now(), False)})",
+                        "-message", f"It's {j_time(False)} / {now().strftime('%H:%M')}. EOD in \
+                            {eod(False)} (at {bedtime.astimezone().strftime('%H:%M')}).",
                         "-contentImage", miku_url])
-                    last_announce = dt.now()
+                    last_announce = utc_now()
                 reflected_flag_path.unlink()
-                next_notification_time = dt.now() + notification_interval
+                next_notification_time = utc_now() + notification_interval
                 with next_notification_time_sp.open('wb') as f:
                     pickle.dump(next_notification_time, f)
             time.sleep(1)
