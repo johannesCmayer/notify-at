@@ -61,7 +61,7 @@ def main():
             pickle.dump(utc_now(), f)
 
     if args.set_reflection:
-        next_notification_time = dparser.parse(args.set_reflection)
+        next_notification_time = dparser.parse(args.set_reflection).astimezone()
         with next_notification_time_sp.open('wb') as f:
             pickle.dump(next_notification_time, f)
 
@@ -81,14 +81,14 @@ def main():
         reflected_flag_path.touch(exist_ok=True)
 
     if args.set_wakeup:
-        wakeup_time = dparser.parse(args.set_wakeup)
+        wakeup_time = dparser.parse(args.set_wakeup).astimezone()
         with wakeup_time_path.open('wb') as f:
             pickle.dump(wakeup_time, f)
     with wakeup_time_path.open('rb') as f:
         wakeup_time = pickle.load(f)
 
     if args.set_eod:
-        bedtime = dparser.parse(args.set_eod)
+        bedtime = dparser.parse(args.set_eod).astimezone()
         with bedtime_sp.open('wb') as f:
             pickle.dump(bedtime, f)
     if not bedtime_sp.exists():
