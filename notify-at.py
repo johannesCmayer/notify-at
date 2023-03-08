@@ -9,7 +9,8 @@ import pickle
 from dateutil import parser as dparser
 
 # Config
-notification_interval = timedelta(hours=2)
+notification_interval = timedelta(hours=2.5)
+notification_repeat_interval = timedelta(minutes=10)
 awake_per_day = timedelta(hours=14)
 project_dir = os.path.dirname(os.path.realpath(__file__)) 
 state_dir = Path(f"{project_dir}/state")
@@ -117,8 +118,10 @@ def main():
             if utc_now() >= next_notification_time:
                 print("Time to reflect")
                 last_announce = None
-                while not reflected_flag_path.exists():
-                    if last_announce and utc_now() - last_announce < timedelta(minutes=5):
+                while not reflected_flag_path.exists() or utc_now() < next_notification_time:
+                    with next_notification_time_sp.open('rb') as f:
+                        next_notification_time = pickle.load(f)
+                    if last_announce and utc_now() - last_announce < notification_repeat_interval:
                         time.sleep(1)
                         continue
                     if args.use_voice:
